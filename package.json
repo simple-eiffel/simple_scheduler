@@ -1,0 +1,9 @@
+{
+  "name": "simple_scheduler",
+  "version": "0.1.0",
+  "description": "Job scheduling for Eiffel: cron expressions, delayed tasks, recurring jobs",
+  "author": "Larry Rix",
+  "license": "MIT",
+  "category": "scheduling",
+  "keywords": ["scheduler", "cron", "jobs", "tasks"]
+}
