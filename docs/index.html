@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple_scheduler - Job Scheduling for Eiffel</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_scheduler</h1>
+        <p class="tagline">Job Scheduling for Eiffel</p>
+        <div class="badges">
+            <span class="badge badge-version">v1.0.0</span>
+            <span class="badge badge-license">MIT</span>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_scheduler">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                <strong>simple_scheduler</strong> provides job scheduling for Eiffel applications
+                including cron expressions, delayed tasks, recurring jobs, and persistent schedules.
+            </p>
+            <p>Part of the <a href="https://github.com/simple-eiffel">Simple Eiffel</a> ecosystem.</p>
+
+            <div class="quick-start">
+                <h3>Quick Start</h3>
+                <pre><code><span class="keyword">local</span>
+    scheduler: <span class="type">SIMPLE_SCHEDULER</span>
+    job: <span class="type">SIMPLE_JOB</span>
+<span class="keyword">do</span>
+    <span class="keyword">create</span> scheduler.make
+    <span class="keyword">create</span> job.make_cron (<span class="string">"0 */5 * * *"</span>, <span class="keyword">agent</span> do_backup)
+    scheduler.schedule (job)
+    scheduler.start
+<span class="keyword">end</span></code></pre>
+            </div>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Cron Expressions</h4>
+                    <p>Standard cron syntax for scheduling recurring jobs</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Delayed Tasks</h4>
+                    <p>Execute tasks after a specified delay</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Recurring Jobs</h4>
+                    <p>Interval-based job execution with configurable frequency</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Persistent Schedules</h4>
+                    <p>Job schedules survive application restarts</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2>Installation</h2>
+            <pre><code><span class="comment"># Set environment variable</span>
+export SIMPLE_SCHEDULER=/path/to/simple_scheduler
+
+<span class="comment"># Add to ECF</span>
+&lt;library name="simple_scheduler" location="$SIMPLE_SCHEDULER/simple_scheduler.ecf"/&gt;</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 simple_* ecosystem. MIT License.</p>
+        <p>
+            <a href="https://github.com/simple-eiffel/simple_scheduler">GitHub</a> |
+            <a href="https://simple-eiffel.github.io">Documentation</a>
+        </p>
+    </footer>
+</body>
+</html>
