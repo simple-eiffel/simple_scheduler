@@ -92,22 +92,22 @@ feature -- Status
 
 feature -- Calculation
 
-	next_fire_time (a_after: DATE_TIME): DATE_TIME
+	next_fire_time (a_after: SIMPLE_DATE_TIME): SIMPLE_DATE_TIME
 			-- Next time cron should fire after given time.
 		require
 			is_valid: is_valid
 		local
-			l_time: DATE_TIME
+			l_time: SIMPLE_DATE_TIME
 			l_found: BOOLEAN
 			l_iterations: INTEGER
 		do
 			-- Start from next second/minute
-			create l_time.make_by_date_time (a_after.date, a_after.time)
+			l_time := a_after
 			if is_extended then
-				l_time.second_add (1)
+				l_time := l_time.plus_seconds (1)
 			else
-				l_time.minute_add (1)
-				l_time.set_second (0)
+				l_time := l_time.plus_minutes (1)
+				l_time := create {SIMPLE_DATE_TIME}.make (l_time.year, l_time.month, l_time.day, l_time.hour, l_time.minute, 0)
 			end
 
 			-- Search for matching time (limit iterations to prevent infinite loop)
@@ -120,9 +120,9 @@ feature -- Calculation
 					l_found := True
 				else
 					if is_extended then
-						l_time.second_add (1)
+						l_time := l_time.plus_seconds (1)
 					else
-						l_time.minute_add (1)
+						l_time := l_time.plus_minutes (1)
 					end
 				end
 				l_iterations := l_iterations + 1
@@ -131,7 +131,7 @@ feature -- Calculation
 			Result := l_time
 		end
 
-	matches (a_time: DATE_TIME): BOOLEAN
+	matches (a_time: SIMPLE_DATE_TIME): BOOLEAN
 			-- Does given time match this cron expression?
 		require
 			is_valid: is_valid
@@ -165,7 +165,7 @@ feature -- Calculation
 
 			-- Check day of week (Sunday = 0 or 7)
 			if Result then
-				Result := field_matches_day_of_week (day_of_week_field, a_time.date.day_of_the_week)
+				Result := field_matches_day_of_week (day_of_week_field, a_time.date.day_of_week)
 			end
 		end
 
@@ -429,7 +429,7 @@ feature {NONE} -- Implementation
 		local
 			l_cron_dow: INTEGER
 		do
-			-- Convert Eiffel day_of_the_week (1=Sunday) to cron (0=Sunday)
+			-- Convert Eiffel day_of_week (1=Sunday) to cron (0=Sunday)
 			l_cron_dow := a_dow - 1
 
 			if a_field.same_string ("*") then

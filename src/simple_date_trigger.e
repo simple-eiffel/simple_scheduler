@@ -29,24 +29,24 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_fire_time: DATE_TIME)
+	make (a_fire_time: SIMPLE_DATE_TIME)
 			-- Create trigger that fires at specific time.
 		do
 			create internal_id.make_from_string ("date_" + generate_id.out)
-			create fire_time.make_by_date_time (a_fire_time.date, a_fire_time.time)
+			fire_time := a_fire_time
 			is_enabled := True
 		ensure
 			fire_time_set: fire_time.is_equal (a_fire_time)
 			enabled: is_enabled
 		end
 
-	make_with_id (a_id: READABLE_STRING_8; a_fire_time: DATE_TIME)
+	make_with_id (a_id: READABLE_STRING_8; a_fire_time: SIMPLE_DATE_TIME)
 			-- Create trigger with specific ID.
 		require
 			id_not_empty: not a_id.is_empty
 		do
 			create internal_id.make_from_string (a_id)
-			create fire_time.make_by_date_time (a_fire_time.date, a_fire_time.time)
+			fire_time := a_fire_time
 			is_enabled := True
 		ensure
 			id_set: id.same_string (a_id)
@@ -59,11 +59,11 @@ feature {NONE} -- Initialization
 		require
 			positive: a_seconds > 0
 		local
-			l_now: DATE_TIME
+			l_now: SIMPLE_DATE_TIME
 		do
 			create internal_id.make_from_string ("date_" + generate_id.out)
 			create l_now.make_now
-			l_now.second_add (a_seconds)
+			l_now := l_now.plus_seconds (a_seconds)
 			fire_time := l_now
 			is_enabled := True
 		ensure
@@ -75,11 +75,11 @@ feature {NONE} -- Initialization
 		require
 			positive: a_minutes > 0
 		local
-			l_now: DATE_TIME
+			l_now: SIMPLE_DATE_TIME
 		do
 			create internal_id.make_from_string ("date_" + generate_id.out)
 			create l_now.make_now
-			l_now.minute_add (a_minutes)
+			l_now := l_now.plus_minutes (a_minutes)
 			fire_time := l_now
 			is_enabled := True
 		ensure
@@ -99,10 +99,10 @@ feature -- Access
 		do
 			create Result.make (40)
 			Result.append ("Once at ")
-			Result.append (fire_time.formatted_out ("yyyy-mm-dd hh:mi:ss"))
+			Result.append (fire_time.to_iso8601)
 		end
 
-	fire_time: DATE_TIME
+	fire_time: SIMPLE_DATE_TIME
 			-- When this trigger should fire.
 
 feature -- Status
@@ -118,7 +118,7 @@ feature -- Status
 
 feature -- Calculation
 
-	next_fire_time (a_after: DATE_TIME): detachable DATE_TIME
+	next_fire_time (a_after: SIMPLE_DATE_TIME): detachable SIMPLE_DATE_TIME
 			-- Next time trigger should fire after given time.
 		do
 			if not has_fired and fire_time > a_after then
@@ -126,7 +126,7 @@ feature -- Calculation
 			end
 		end
 
-	matches (a_time: DATE_TIME): BOOLEAN
+	matches (a_time: SIMPLE_DATE_TIME): BOOLEAN
 			-- Does given time match this trigger?
 		do
 			if not has_fired then

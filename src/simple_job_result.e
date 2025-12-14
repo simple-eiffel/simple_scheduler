@@ -58,7 +58,7 @@ feature -- Access
 	duration_ms: INTEGER_64
 			-- Execution duration in milliseconds.
 
-	executed_at: DATE_TIME
+	executed_at: SIMPLE_DATE_TIME
 			-- When job was executed.
 
 feature -- Status

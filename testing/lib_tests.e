@@ -77,7 +77,7 @@ feature -- Cron Expression Tests
 			-- Test matching every minute.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			dt: DATE_TIME
+			dt: SIMPLE_DATE_TIME
 		do
 			create cron.make ("* * * * *")
 			create dt.make (2025, 12, 13, 10, 30, 0)
@@ -88,7 +88,7 @@ feature -- Cron Expression Tests
 			-- Test matching specific minute.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			dt1, dt2: DATE_TIME
+			dt1, dt2: SIMPLE_DATE_TIME
 		do
 			create cron.make ("30 * * * *")
 			create dt1.make (2025, 12, 13, 10, 30, 0)
@@ -101,7 +101,7 @@ feature -- Cron Expression Tests
 			-- Test matching range pattern.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			dt1, dt2, dt3: DATE_TIME
+			dt1, dt2, dt3: SIMPLE_DATE_TIME
 		do
 			create cron.make ("0-15 * * * *")
 			create dt1.make (2025, 12, 13, 10, 5, 0)
@@ -116,7 +116,7 @@ feature -- Cron Expression Tests
 			-- Test matching list pattern.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			dt1, dt2, dt3: DATE_TIME
+			dt1, dt2, dt3: SIMPLE_DATE_TIME
 		do
 			create cron.make ("0,15,30,45 * * * *")
 			create dt1.make (2025, 12, 13, 10, 0, 0)
@@ -131,7 +131,7 @@ feature -- Cron Expression Tests
 			-- Test matching step pattern.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			dt1, dt2, dt3: DATE_TIME
+			dt1, dt2, dt3: SIMPLE_DATE_TIME
 		do
 			create cron.make ("*/15 * * * *")
 			create dt1.make (2025, 12, 13, 10, 0, 0)
@@ -146,7 +146,7 @@ feature -- Cron Expression Tests
 			-- Test calculating next fire time.
 		local
 			cron: SIMPLE_CRON_EXPRESSION
-			after_time, next_time: DATE_TIME
+			after_time, next_time: SIMPLE_DATE_TIME
 		do
 			create cron.make ("0 * * * *")  -- Every hour at minute 0
 			create after_time.make (2025, 12, 13, 10, 30, 0)
@@ -202,7 +202,7 @@ feature -- Trigger Tests
 			-- Test creating date trigger.
 		local
 			trigger: SIMPLE_DATE_TRIGGER
-			fire_time: DATE_TIME
+			fire_time: SIMPLE_DATE_TIME
 		do
 			create fire_time.make (2025, 12, 25, 0, 0, 0)
 			create trigger.make (fire_time)
@@ -215,7 +215,7 @@ feature -- Trigger Tests
 			-- Test creating date trigger in N seconds.
 		local
 			trigger: SIMPLE_DATE_TRIGGER
-			now: DATE_TIME
+			now: SIMPLE_DATE_TIME
 		do
 			create trigger.make_in_seconds (60)
 			create now.make_now
@@ -394,12 +394,12 @@ feature -- Scheduler Tests
 		local
 			scheduler: SIMPLE_SCHEDULER
 			job: SIMPLE_JOB
-			fire_time: DATE_TIME
+			fire_time: SIMPLE_DATE_TIME
 		do
 			create scheduler.make
 			create job.make ("job1", agent empty_action)
 			create fire_time.make_now
-			fire_time.day_add (1)
+			fire_time := fire_time.plus_days (1)
 			scheduler.schedule_at (job, fire_time)
 			assert_true ("has_job", scheduler.has_job ("job1"))
 		end

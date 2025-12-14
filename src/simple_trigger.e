@@ -40,7 +40,7 @@ feature -- Status
 
 feature -- Calculation
 
-	next_fire_time (a_after: DATE_TIME): detachable DATE_TIME
+	next_fire_time (a_after: SIMPLE_DATE_TIME): detachable SIMPLE_DATE_TIME
 			-- Next time trigger should fire after given time.
 			-- Returns Void if trigger will not fire again.
 		require
@@ -48,7 +48,7 @@ feature -- Calculation
 		deferred
 		end
 
-	matches (a_time: DATE_TIME): BOOLEAN
+	matches (a_time: SIMPLE_DATE_TIME): BOOLEAN
 			-- Does given time match this trigger?
 		deferred
 		end

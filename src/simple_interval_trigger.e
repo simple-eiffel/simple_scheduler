@@ -125,10 +125,10 @@ feature -- Access
 	interval_seconds: INTEGER
 			-- Interval between fires in seconds.
 
-	start_time: detachable DATE_TIME
+	start_time: detachable SIMPLE_DATE_TIME
 			-- Optional start time (Void = start immediately).
 
-	end_time: detachable DATE_TIME
+	end_time: detachable SIMPLE_DATE_TIME
 			-- Optional end time (Void = no end).
 
 	max_fires: INTEGER
@@ -146,17 +146,17 @@ feature -- Status
 				Result := fire_count >= max_fires
 			end
 			if not Result and attached end_time as l_end then
-				Result := create {DATE_TIME}.make_now > l_end
+				Result := create {SIMPLE_DATE_TIME}.make_now > l_end
 			end
 		end
 
 feature -- Calculation
 
-	next_fire_time (a_after: DATE_TIME): detachable DATE_TIME
+	next_fire_time (a_after: SIMPLE_DATE_TIME): detachable SIMPLE_DATE_TIME
 			-- Next time trigger should fire after given time.
 		local
-			l_base: DATE_TIME
-			l_next: DATE_TIME
+			l_base: SIMPLE_DATE_TIME
+			l_next: SIMPLE_DATE_TIME
 		do
 			if not is_expired then
 				-- Determine base time
@@ -171,8 +171,8 @@ feature -- Calculation
 				end
 
 				-- Calculate next fire
-				create l_next.make_by_date_time (l_base.date, l_base.time)
-				l_next.second_add (interval_seconds)
+				l_next := l_base
+				l_next := l_next.plus_seconds (interval_seconds)
 
 				-- Check end time
 				if attached end_time as l_end then
@@ -185,7 +185,7 @@ feature -- Calculation
 			end
 		end
 
-	matches (a_time: DATE_TIME): BOOLEAN
+	matches (a_time: SIMPLE_DATE_TIME): BOOLEAN
 			-- Does given time match this trigger?
 			-- For interval triggers, we check if we're past a fire point.
 		do
@@ -195,18 +195,18 @@ feature -- Calculation
 
 feature -- Element change
 
-	set_start_time (a_time: DATE_TIME)
+	set_start_time (a_time: SIMPLE_DATE_TIME)
 			-- Set when trigger should start.
 		do
-			create start_time.make_by_date_time (a_time.date, a_time.time)
+			start_time := a_time
 		ensure
 			start_time_set: attached start_time as l_start implies l_start.is_equal (a_time)
 		end
 
-	set_end_time (a_time: DATE_TIME)
+	set_end_time (a_time: SIMPLE_DATE_TIME)
 			-- Set when trigger should end.
 		do
-			create end_time.make_by_date_time (a_time.date, a_time.time)
+			end_time := a_time
 		ensure
 			end_time_set: attached end_time as l_end implies l_end.is_equal (a_time)
 		end

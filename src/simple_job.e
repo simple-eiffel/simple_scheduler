@@ -84,7 +84,7 @@ feature -- State
 	is_running: BOOLEAN
 			-- Is job currently executing?
 
-	last_run: detachable DATE_TIME
+	last_run: detachable SIMPLE_DATE_TIME
 			-- When job last ran.
 
 	last_result: detachable SIMPLE_JOB_RESULT
@@ -182,7 +182,7 @@ feature -- Execution
 			is_enabled: is_enabled
 			not_running_or_concurrent: not is_running or allow_concurrent
 		local
-			l_start, l_end: DATE_TIME
+			l_start, l_end: SIMPLE_DATE_TIME
 			l_duration: INTEGER_64
 			l_result: SIMPLE_JOB_RESULT
 		do
@@ -217,12 +217,12 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	time_difference_ms (a_start, a_end: DATE_TIME): INTEGER_64
+	time_difference_ms (a_start, a_end: SIMPLE_DATE_TIME): INTEGER_64
 			-- Calculate milliseconds between two times.
 		local
 			l_seconds: INTEGER_64
 		do
-			l_seconds := a_end.relative_duration (a_start).seconds_count
+			l_seconds := a_end.to_timestamp - a_start.to_timestamp
 			Result := l_seconds * 1000
 		end
 

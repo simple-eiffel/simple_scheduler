@@ -61,12 +61,12 @@ feature -- Access
 			end
 		end
 
-	next_fire_time: detachable DATE_TIME
+	next_fire_time: detachable SIMPLE_DATE_TIME
 			-- Next time any job will fire.
 		local
-			l_now: DATE_TIME
-			l_next: detachable DATE_TIME
-			l_trigger_next: detachable DATE_TIME
+			l_now: SIMPLE_DATE_TIME
+			l_next: detachable SIMPLE_DATE_TIME
+			l_trigger_next: detachable SIMPLE_DATE_TIME
 			i: INTEGER
 		do
 			create l_now.make_now
@@ -147,11 +147,11 @@ feature -- Scheduling
 			job_added: has_job (a_job.id)
 		end
 
-	schedule_at (a_job: SIMPLE_JOB; a_time: DATE_TIME)
+	schedule_at (a_job: SIMPLE_JOB; a_time: SIMPLE_DATE_TIME)
 			-- Schedule job to run once at specific time.
 		require
 			job_not_void: a_job /= Void
-			future: a_time > create {DATE_TIME}.make_now
+			future: a_time > create {SIMPLE_DATE_TIME}.make_now
 			not_duplicate: not has_job (a_job.id)
 		local
 			l_trigger: SIMPLE_DATE_TRIGGER
@@ -321,7 +321,7 @@ feature -- Control
 			-- Process one scheduler tick.
 			-- Call this from your main loop or timer.
 		local
-			l_now: DATE_TIME
+			l_now: SIMPLE_DATE_TIME
 		do
 			if is_running and not is_paused then
 				create l_now.make_now
@@ -371,10 +371,10 @@ feature {NONE} -- Implementation
 	listeners: ARRAYED_LIST [SIMPLE_SCHEDULER_LISTENER]
 			-- Event listeners.
 
-	last_check: detachable DATE_TIME
+	last_check: detachable SIMPLE_DATE_TIME
 			-- Last time we checked for jobs to run.
 
-	check_and_execute_jobs (a_now: DATE_TIME)
+	check_and_execute_jobs (a_now: SIMPLE_DATE_TIME)
 			-- Check which jobs should run and execute them.
 		local
 			l_trigger: detachable SIMPLE_TRIGGER
@@ -405,7 +405,7 @@ feature {NONE} -- Implementation
 			last_check := a_now
 		end
 
-	should_execute (a_job: SIMPLE_JOB; a_trigger: SIMPLE_TRIGGER; a_now: DATE_TIME): BOOLEAN
+	should_execute (a_job: SIMPLE_JOB; a_trigger: SIMPLE_TRIGGER; a_now: SIMPLE_DATE_TIME): BOOLEAN
 			-- Should job be executed now?
 		do
 			-- Check if we're past the next fire time
