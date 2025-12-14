@@ -182,46 +182,28 @@ feature -- Execution
 			is_enabled: is_enabled
 			not_running_or_concurrent: not is_running or allow_concurrent
 		local
-			l_end: DATE_TIME
+			l_start, l_end: DATE_TIME
 			l_duration: INTEGER_64
 			l_result: SIMPLE_JOB_RESULT
-			l_retried: BOOLEAN
 		do
 			is_running := True
-			create execution_start_time.make_now
+			create l_start.make_now
 
-			if not l_retried then
-				action.call (Void)
-				create l_end.make_now
-				if attached execution_start_time as l_start then
-					l_duration := time_difference_ms (l_start, l_end)
-				end
-				create l_result.make_success (l_duration)
-				run_count := run_count + 1
-			end
+			action.call (Void)
 
-			if attached l_result as lr then
-				last_result := lr
-				add_result (lr)
-			end
-			create last_run.make_now
-			is_running := False
-		rescue
-			l_retried := True
 			create l_end.make_now
-			if attached execution_start_time as l_start then
-				l_duration := time_difference_ms (l_start, l_end)
-			end
-			create l_result.make_failure ("Exception during execution", l_duration)
-			last_result := l_result
-			create last_run.make_now
-			add_result (l_result)
-			error_count := error_count + 1
-			is_running := False
-		end
+			l_duration := time_difference_ms (l_start, l_end)
+			create l_result.make_success (l_duration)
+			run_count := run_count + 1
 
-	execution_start_time: detachable DATE_TIME
-			-- Start time of current execution (for rescue access).
+			last_result := l_result
+			add_result (l_result)
+			create last_run.make_now
+			is_running := False
+		ensure
+			not_running: not is_running
+			has_result: last_result /= Void
+		end
 
 feature {NONE} -- Implementation
 
