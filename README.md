@@ -47,14 +47,14 @@ end
 
 ## Installation
 
-1. Set environment variable:
+1. Set the ecosystem environment variable (one-time setup for all simple_* libraries):
 ```bash
-export SIMPLE_SCHEDULER=/path/to/simple_scheduler
+export SIMPLE_EIFFEL=/path/to/prod
 ```
 
 2. Add to ECF:
 ```xml
-<library name="simple_scheduler" location="$SIMPLE_SCHEDULER/simple_scheduler.ecf"/>
+<library name="simple_scheduler" location="$SIMPLE_EIFFEL/simple_scheduler/simple_scheduler.ecf"/>
 ```
 
 ## Cron Expression Format
