@@ -104,8 +104,6 @@ feature -- Scheduling
 	schedule (a_job: SIMPLE_JOB; a_trigger: SIMPLE_TRIGGER)
 			-- Schedule job with given trigger.
 		require
-			job_not_void: a_job /= Void
-			trigger_not_void: a_trigger /= Void
 			not_duplicate: not has_job (a_job.id)
 		do
 			jobs.extend (a_job)
@@ -120,7 +118,6 @@ feature -- Scheduling
 	schedule_cron (a_job: SIMPLE_JOB; a_expression: READABLE_STRING_8)
 			-- Schedule job with cron expression.
 		require
-			job_not_void: a_job /= Void
 			expression_not_empty: not a_expression.is_empty
 			not_duplicate: not has_job (a_job.id)
 		local
@@ -135,7 +132,6 @@ feature -- Scheduling
 	schedule_interval (a_job: SIMPLE_JOB; a_seconds: INTEGER)
 			-- Schedule job to run every `a_seconds` seconds.
 		require
-			job_not_void: a_job /= Void
 			positive: a_seconds > 0
 			not_duplicate: not has_job (a_job.id)
 		local
@@ -150,7 +146,6 @@ feature -- Scheduling
 	schedule_at (a_job: SIMPLE_JOB; a_time: SIMPLE_DATE_TIME)
 			-- Schedule job to run once at specific time.
 		require
-			job_not_void: a_job /= Void
 			future: a_time > create {SIMPLE_DATE_TIME}.make_now
 			not_duplicate: not has_job (a_job.id)
 		local
@@ -345,10 +340,10 @@ feature -- Listeners
 
 	add_listener (a_listener: SIMPLE_SCHEDULER_LISTENER)
 			-- Add event listener.
-		require
-			listener_not_void: a_listener /= Void
 		do
 			listeners.extend (a_listener)
+		ensure
+			listener_added: listeners.has (a_listener)
 		end
 
 	remove_listener (a_listener: SIMPLE_SCHEDULER_LISTENER)
@@ -535,11 +530,12 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	jobs_attached: jobs /= Void
-	triggers_attached: triggers /= Void
-	job_triggers_attached: job_triggers /= Void
-	listeners_attached: listeners /= Void
+	jobs_attached: attached jobs
+	triggers_attached: attached triggers
+	job_triggers_attached: attached job_triggers
+	listeners_attached: attached listeners
 	poll_interval_positive: poll_interval_ms > 0
+	jobs_triggers_sync: jobs.count = triggers.count
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

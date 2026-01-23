@@ -245,9 +245,11 @@ feature {NONE} -- Implementation
 			-- Counter for ID generation.
 
 invariant
+	internal_id_attached: attached internal_id
 	interval_positive: interval_seconds > 0
 	fire_count_non_negative: fire_count >= 0
 	max_fires_non_negative: max_fires >= 0
+	fire_bounded_by_max: max_fires > 0 implies fire_count <= max_fires
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

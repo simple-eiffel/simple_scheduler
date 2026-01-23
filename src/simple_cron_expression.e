@@ -443,7 +443,8 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	expression_attached: expression /= Void
+	expression_attached: attached expression
+	fields_attached: attached minute_field and attached hour_field and attached day_of_month_field and attached month_field and attached day_of_week_field
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

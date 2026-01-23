@@ -93,7 +93,9 @@ feature -- Conversion
 
 invariant
 	failure_has_error: is_failure implies attached error_message
-	executed_at_attached: executed_at /= Void
+	success_no_error: is_success implies not attached error_message
+	executed_at_attached: attached executed_at
+	duration_valid: duration_ms >= 0
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

@@ -160,7 +160,9 @@ feature {NONE} -- Implementation
 			-- Counter for ID generation.
 
 invariant
-	fire_time_attached: fire_time /= Void
+	fire_time_attached: attached fire_time
+	internal_id_attached: attached internal_id
+	expired_after_fire: has_fired implies is_expired
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

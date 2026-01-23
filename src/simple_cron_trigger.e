@@ -121,7 +121,8 @@ feature {NONE} -- Implementation
 			-- Counter for ID generation.
 
 invariant
-	cron_expression_attached: cron_expression /= Void
+	cron_expression_attached: attached cron_expression
+	internal_id_attached: attached internal_id
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"

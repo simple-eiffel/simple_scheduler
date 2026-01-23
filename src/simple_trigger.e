@@ -72,7 +72,9 @@ feature -- Element change
 		end
 
 invariant
+	id_attached: attached id
 	id_not_empty: not id.is_empty
+	description_attached: attached description
 
 note
 	copyright: "Copyright (c) 2025, Larry Rix"
