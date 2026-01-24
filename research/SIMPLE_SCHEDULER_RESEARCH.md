@@ -1,5 +1,8 @@
 # simple_scheduler Research Document
 
+
+**Date**: 2025-12-13
+
 ## Target Description
 Job scheduling for Eiffel: cron expressions, delayed tasks, recurring jobs, persistent schedules
 
