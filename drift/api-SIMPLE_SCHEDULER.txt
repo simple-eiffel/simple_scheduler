@@ -1,0 +1,391 @@
+note
+	description: "[
+				Job scheduler facade.
+		
+				Main entry point for scheduling jobs. Supports:
+				- Cron expressions
+				- Fixed intervals
+				- One-time date triggers
+				- Fluent API for schedule creation
+		
+				Examples:
+				  scheduler.schedule_cron (job, '*/5 * * * *')  -- Every 5 minutes
+				  scheduler.schedule_interval (job, 30)        -- Every 30 seconds
+				  scheduler.schedule_at (job, future_time)     -- One-time
+	]"
+	author: "Larry Rix"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class interface
+	SIMPLE_SCHEDULER
+
+create 
+	make
+			-- Create new scheduler.
+		ensure
+			not_running: not is_running
+
+feature -- Access
+
+	generating_type: TYPE [detachable SIMPLE_SCHEDULER]
+			-- Type of current object
+			-- (type of which it is a direct instance)
+			-- (from ANY)
+		ensure -- from ANY
+			generating_type_not_void: Result /= Void
+
+	generator: STRING_8
+			-- Name of current object's generating class
+			-- (base class of the type of which it is a direct instance)
+			-- (from ANY)
+		ensure -- from ANY
+			generator_not_void: Result /= Void
+			generator_not_empty: not Result.is_empty
+
+	job_count: INTEGER_32
+			-- Number of scheduled jobs.
+
+	next_fire_time: detachable SIMPLE_DATE_TIME
+			-- Next time any job will fire.
+
+	pending_jobs: ARRAYED_LIST [SIMPLE_JOB]
+			-- List of all scheduled jobs.
+
+	poll_interval_ms: INTEGER_32
+			-- Polling interval in milliseconds.
+	
+feature -- Comparison
+
+	frozen deep_equal (a: detachable ANY; b: like arg #1): BOOLEAN
+			-- Are `a` and `b` either both void
+			-- or attached to isomorphic object structures?
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+			shallow_implies_deep: standard_equal (a, b) implies Result
+			both_or_none_void: (a = Void) implies (Result = (b = Void))
+			same_type: (Result and (a /= Void)) implies (b /= Void and then a.same_type (b))
+			symmetric: Result implies deep_equal (b, a)
+
+	frozen equal (a: detachable ANY; b: like arg #1): BOOLEAN
+			-- Are `a` and `b` either both void or attached
+			-- to objects considered equal?
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+			definition: Result = (a = Void and b = Void) or else ((a /= Void and b /= Void) and then a.is_equal (b))
+
+	frozen is_deep_equal alias "≡≡≡" (other: SIMPLE_SCHEDULER): BOOLEAN
+			-- Are `Current` and `other` attached to isomorphic object structures?
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+		ensure -- from ANY
+			shallow_implies_deep: standard_is_equal (other) implies Result
+			same_type: Result implies same_type (other)
+			symmetric: Result implies other.is_deep_equal (Current)
+
+	is_equal (other: SIMPLE_SCHEDULER): BOOLEAN
+			-- Is `other` attached to an object considered
+			-- equal to current object?
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+		ensure -- from ANY
+			symmetric: Result implies other ~ Current
+			consistent: standard_is_equal (other) implies Result
+
+	frozen standard_equal (a: detachable ANY; b: like arg #1): BOOLEAN
+			-- Are `a` and `b` either both void or attached to
+			-- field-by-field identical objects of the same type?
+			-- Always uses default object comparison criterion.
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+			definition: Result = (a = Void and b = Void) or else ((a /= Void and b /= Void) and then a.standard_is_equal (b))
+
+	frozen standard_is_equal alias "≜" (other: SIMPLE_SCHEDULER): BOOLEAN
+			-- Is `other` attached to an object of the same type
+			-- as current object, and field-by-field identical to it?
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+		ensure -- from ANY
+			same_type: Result implies same_type (other)
+			symmetric: Result implies other.standard_is_equal (Current)
+	
+feature -- Status report
+
+	conforms_to (other: ANY): BOOLEAN
+			-- Does type of current object conform to type
+			-- of `other` (as per Eiffel: The Language, chapter 13)?
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+
+	same_type (other: ANY): BOOLEAN
+			-- Is type of current object identical to type of `other`?
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+		ensure -- from ANY
+			definition: Result = (conforms_to (other) and other.conforms_to (Current))
+	
+feature -- Duplication
+
+	copy (other: SIMPLE_SCHEDULER)
+			-- Update current object using fields of object attached
+			-- to `other`, so as to yield equal objects.
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+			type_identity: same_type (other)
+		ensure -- from ANY
+			is_equal: Current ~ other
+
+	frozen deep_copy (other: SIMPLE_SCHEDULER)
+			-- Effect equivalent to that of:
+			--		`copy` (`other` . `deep_twin`)
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+		ensure -- from ANY
+			deep_equal: deep_equal (Current, other)
+
+	frozen deep_twin: SIMPLE_SCHEDULER
+			-- New object structure recursively duplicated from Current.
+			-- (from ANY)
+		ensure -- from ANY
+			deep_twin_not_void: Result /= Void
+			deep_equal: deep_equal (Current, Result)
+
+	frozen standard_copy (other: SIMPLE_SCHEDULER)
+			-- Copy every field of `other` onto corresponding field
+			-- of current object.
+			-- (from ANY)
+		require -- from ANY
+			other_not_void: other /= Void
+			type_identity: same_type (other)
+		ensure -- from ANY
+			is_standard_equal: standard_is_equal (other)
+
+	frozen standard_twin: SIMPLE_SCHEDULER
+			-- New object field-by-field identical to `other`.
+			-- Always uses default copying semantics.
+			-- (from ANY)
+		ensure -- from ANY
+			standard_twin_not_void: Result /= Void
+			equal: standard_equal (Result, Current)
+
+	frozen twin: SIMPLE_SCHEDULER
+			-- New object equal to `Current`
+			-- `twin` calls `copy`; to change copying/twinning semantics, redefine `copy`.
+			-- (from ANY)
+		ensure -- from ANY
+			twin_not_void: Result /= Void
+			is_equal: Result ~ Current
+	
+feature -- Basic operations
+
+	frozen default: detachable SIMPLE_SCHEDULER
+			-- Default value of object's type
+			-- (from ANY)
+
+	frozen default_pointer: POINTER
+			-- Default value of type `POINTER`
+			-- (Avoid the need to write `p`.`default` for
+			-- some `p` of type `POINTER`.)
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+
+	default_rescue
+			-- Process exception for routines with no Rescue clause.
+			-- (Default: do nothing.)
+			-- (from ANY)
+
+	frozen do_nothing
+			-- Execute a null action.
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+	
+feature -- Control
+
+	pause
+			-- Pause the scheduler (jobs won't fire but state is preserved).
+		require
+			is_running: is_running
+			not_paused: not is_paused
+		ensure
+			paused: is_paused
+
+	resume
+			-- Resume paused scheduler.
+		require
+			is_running: is_running
+			is_paused: is_paused
+		ensure
+			not_paused: not is_paused
+
+	start
+			-- Start the scheduler.
+		require
+			not_running: not is_running
+		ensure
+			running: is_running
+			not_paused: not is_paused
+
+	stop
+			-- Stop the scheduler.
+		require
+			is_running: is_running
+		ensure
+			not_running: not is_running
+
+	tick
+			-- Process one scheduler tick.
+			-- Call this from your main loop or timer.
+
+	trigger_now (a_job_id: READABLE_STRING_8)
+			-- Immediately execute job (outside of schedule).
+		require
+			has_job: has_job (a_job_id)
+	
+feature -- Listeners
+
+	add_listener (a_listener: SIMPLE_SCHEDULER_LISTENER)
+			-- Add event listener.
+		ensure
+			listener_added: listeners.has (a_listener)
+
+	remove_listener (a_listener: SIMPLE_SCHEDULER_LISTENER)
+			-- Remove event listener.
+	
+feature -- Options
+
+	set_poll_interval (a_ms: INTEGER_32)
+			-- Set polling interval.
+		require
+			positive: a_ms > 0
+		ensure
+			set: poll_interval_ms = a_ms
+	
+feature -- Output
+
+	Io: STD_FILES
+			-- Handle to standard file setup
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+			io_not_void: Result /= Void
+
+	out: STRING_8
+			-- New string containing terse printable representation
+			-- of current object
+			-- (from ANY)
+		ensure -- from ANY
+			out_not_void: Result /= Void
+
+	print (o: detachable ANY)
+			-- Write terse external representation of `o`
+			-- on standard output.
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+
+	frozen tagged_out: STRING_8
+			-- New string containing terse printable representation
+			-- of current object
+			-- (from ANY)
+		ensure -- from ANY
+			tagged_out_not_void: Result /= Void
+	
+feature -- Platform
+
+	Operating_environment: OPERATING_ENVIRONMENT
+			-- Objects available from the operating system
+			-- (from ANY)
+		ensure -- from ANY
+			instance_free: class
+			operating_environment_not_void: Result /= Void
+	
+feature -- Query
+
+	has_job (a_job_id: READABLE_STRING_8): BOOLEAN
+			-- Is job with given ID scheduled?
+
+	job (a_job_id: READABLE_STRING_8): detachable SIMPLE_JOB
+			-- Get job by ID.
+
+	trigger_for_job (a_job_id: READABLE_STRING_8): detachable SIMPLE_TRIGGER
+			-- Get trigger for job.
+	
+feature -- Scheduling
+
+	schedule (a_job: SIMPLE_JOB; a_trigger: SIMPLE_TRIGGER)
+			-- Schedule job with given trigger.
+		require
+			not_duplicate: not has_job (a_job.id)
+		ensure
+			job_added: has_job (a_job.id)
+			count_increased: job_count = old job_count + 1
+
+	schedule_at (a_job: SIMPLE_JOB; a_time: SIMPLE_DATE_TIME)
+			-- Schedule job to run once at specific time.
+		require
+			future: a_time end > create {SIMPLE_DATE_TIME}.make_now end
+			not_duplicate: not has_job (a_job.id)
+		ensure
+			job_added: has_job (a_job.id)
+
+	schedule_cron (a_job: SIMPLE_JOB; a_expression: READABLE_STRING_8)
+			-- Schedule job with cron expression.
+		require
+			expression_not_empty: not a_expression.is_empty
+			not_duplicate: not has_job (a_job.id)
+		ensure
+			job_added: has_job (a_job.id)
+
+	schedule_interval (a_job: SIMPLE_JOB; a_seconds: INTEGER_32)
+			-- Schedule job to run every `a_seconds` seconds.
+		require
+			positive: a_seconds > 0
+			not_duplicate: not has_job (a_job.id)
+		ensure
+			job_added: has_job (a_job.id)
+
+	unschedule (a_job_id: READABLE_STRING_8)
+			-- Remove job from scheduler.
+		require
+			has_job: has_job (a_job_id)
+		ensure
+			removed: not has_job (a_job_id)
+	
+feature -- Status
+
+	is_paused: BOOLEAN
+			-- Is scheduler paused?
+
+	is_running: BOOLEAN
+			-- Is scheduler running?
+	
+invariant
+	jobs_attached: attached jobs
+	triggers_attached: attached triggers
+	job_triggers_attached: attached job_triggers
+	listeners_attached: attached listeners
+	poll_interval_positive: poll_interval_ms > 0
+	jobs_triggers_sync: jobs.count = triggers.count
+
+		-- from ANY
+	reflexive_equality: standard_is_equal (Current)
+	reflexive_conformance: conforms_to (Current)
+
+note
+	copyright: "Copyright (c) 2025, Larry Rix"
+	license: "MIT License"
+
+end -- class SIMPLE_SCHEDULER
+
